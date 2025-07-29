@@ -3,11 +3,12 @@ import subprocess
 import streamlit as st
 import torch
 from torchvision import models, transforms
+from torchvision.transforms.functional import to_pil_image, resize
 from torchcam.methods import GradCAM
 from torchcam.utils import overlay_mask
 from PIL import Image
 
-# --- Step 1: Download model from Google Drive using gdown ---
+# --- Download ResNet18 model from Google Drive using gdown ---
 MODEL_PATH = "resnet18_otoscopic.pt"
 MODEL_ID = "1CX0O9r-QcEx9R9Ie-O_3JrFu0ig_wWHo"
 
@@ -20,7 +21,7 @@ if not os.path.exists(MODEL_PATH):
         st.error(f"❌ Download failed: {e}")
         st.stop()
 
-# --- Step 2: Load model and setup ---
+# --- Load model and setup ---
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 class_labels = ['Acute Otitis Media', 'Cerumen Impaction', 'Chronic Otitis Media', 'Myringosclerosis', 'Normal']
 
@@ -35,21 +36,21 @@ except Exception as e:
 
 resnet_model.eval().to(device)
 
-# --- Step 3: Grad-CAM and image transform setup ---
+# --- Grad-CAM and image transform setup ---
 cam_extractor = GradCAM(resnet_model, target_layer="layer4")
 transform = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.ToTensor()
 ])
 
-# --- Step 4: Streamlit UI ---
+# --- Streamlit App UI ---
 st.title("🩺 Otoscopic Classifier with Grad-CAM (ResNet18)")
 
 uploaded_file = st.file_uploader("📤 Upload an ear image", type=["jpg", "jpeg", "png"])
 
 if uploaded_file:
     image = Image.open(uploaded_file).convert("RGB")
-    st.image(image, caption="📷 Uploaded Image", use_column_width=True)
+    st.image(image, caption="📷 Uploaded Image", use_container_width=True)
 
     # Preprocess and predict
     input_tensor = transform(image).unsqueeze(0).to(device)
@@ -62,5 +63,6 @@ if uploaded_file:
 
     # Grad-CAM heatmap
     activation_map = cam_extractor(pred_class, output)
-    cam_image = overlay_mask(image, activation_map[0].resize(image.size), alpha=0.5)
-    st.image(cam_image, caption="🔥 Grad-CAM Heatmap", use_column_width=True)
+    heatmap = to_pil_image(resize(activation_map[0].unsqueeze(0), image.size))
+    cam_image = overlay_mask(image, heatmap, alpha=0.5)
+    st.image(cam_image, caption="🔥 Grad-CAM Heatmap", use_container_width=True)
