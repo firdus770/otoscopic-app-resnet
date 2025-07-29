@@ -33,7 +33,7 @@ resnet_model = models.resnet18(pretrained=True)
 resnet_model.fc = torch.nn.Linear(resnet_model.fc.in_features, len(class_labels))
 
 try:
-    resnet_model.load_state_dict(torch.load(MODEL_PATH, map_location=device))
+    resnet_model.load_state_dict(torch.load(MODEL_PATH, map_location=device, weights_only=False))
 except Exception as e:
     st.error(f"❌ Error loading model: {e}")
     st.stop()
