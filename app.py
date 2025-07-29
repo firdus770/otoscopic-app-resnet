@@ -13,7 +13,7 @@ MODEL_PATH = "resnet18_otoscopic.pt"
 MODEL_ID = "1CX0O9r-QcEx9R9Ie-O_3JrFu0ig_wWHo"
 
 if not os.path.exists(MODEL_PATH):
-    st.info("📥 Downloading ResNet18 model from Google Drive...")
+    st.info("Downloading ResNet18 model from Google Drive...")
     try:
         subprocess.run(["gdown", "--id", MODEL_ID, "--output", MODEL_PATH], check=True)
         st.success("Model downloaded successfully.")
