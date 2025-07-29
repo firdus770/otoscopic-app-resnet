@@ -44,13 +44,13 @@ transform = transforms.Compose([
 ])
 
 # --- Step 4: Streamlit App UI ---
-st.title("🩺 Otoscopic Classifier with Grad-CAM (ResNet18)")
+st.title("Otoscopic Classifier with Grad-CAM (ResNet18)")
 
-uploaded_file = st.file_uploader("📤 Upload an ear image", type=["jpg", "jpeg", "png"])
+uploaded_file = st.file_uploader("Upload an ear image", type=["jpg", "jpeg", "png"])
 
 if uploaded_file:
     image = Image.open(uploaded_file).convert("RGB")
-    st.image(image, caption="📷 Uploaded Image", use_container_width=True)
+    st.image(image, caption="Uploaded Image", use_container_width=True)
 
     # Preprocess and predict
     input_tensor = transform(image).unsqueeze(0).to(device)
