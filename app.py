@@ -16,9 +16,9 @@ if not os.path.exists(MODEL_PATH):
     st.info("📥 Downloading ResNet18 model from Google Drive...")
     try:
         subprocess.run(["gdown", "--id", MODEL_ID, "--output", MODEL_PATH], check=True)
-        st.success("✅ Model downloaded successfully.")
+        st.success("Model downloaded successfully.")
     except Exception as e:
-        st.error(f"❌ Download failed: {e}")
+        st.error(f"Download failed: {e}")
         st.stop()
 
 # --- Step 2: Load model and setup ---
@@ -31,7 +31,7 @@ resnet_model.fc = torch.nn.Linear(resnet_model.fc.in_features, len(class_labels)
 try:
     resnet_model.load_state_dict(torch.load(MODEL_PATH, map_location=device, weights_only=False))
 except Exception as e:
-    st.error(f"❌ Error loading model: {e}")
+    st.error(f"Error loading model: {e}")
     st.stop()
 
 resnet_model.eval().to(device)
@@ -58,8 +58,8 @@ if uploaded_file:
     pred_class = output.argmax(dim=1).item()
     confidence = torch.softmax(output, dim=1)[0][pred_class].item()
 
-    st.success(f"🧠 Prediction: {class_labels[pred_class]}")
-    st.info(f"📊 Confidence: {confidence:.2f}")
+    st.success(f"Prediction: {class_labels[pred_class]}")
+    st.info(f"Confidence: {confidence:.2f}")
 
     # Grad-CAM heatmap
     activation_map = cam_extractor(pred_class, output)
@@ -67,4 +67,4 @@ if uploaded_file:
     heatmap_pil = to_pil_image(heatmap_tensor)
     heatmap_resized = heatmap_pil.resize(image.size)
     cam_image = overlay_mask(image, heatmap_resized, alpha=0.5)
-    st.image(cam_image, caption="🔥 Grad-CAM Heatmap", use_container_width=True)
+    st.image(cam_image, caption="Grad-CAM Heatmap", use_container_width=True)
